@@ -103,7 +103,7 @@ def loadGrid(filename)
   grid
 end
 
-grid = loadGrid('board2.txt')
+grid = loadGrid('grid')
 
 #grid.printGrid
 solveBFS(grid)
