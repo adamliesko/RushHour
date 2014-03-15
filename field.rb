@@ -1,19 +1,19 @@
-VERTICAL = 0
-HORIZONTAL = 1
 
-UP    = 0
-DOWN  = 1
-LEFT  = 2
-RIGHT = 3
+UP    = 10
+DOWN  = 20
+VERTICAL = 100
+HORIZONTAL = 99
+
+LEFT  = 30
+RIGHT = 40
 
 class Field
-  attr_accessor :x,:y,:grid,:type, :length, :escape,  :letter
+  attr_accessor :x,:y,:grid,:direction, :length, :escape,  :letter
 
   def initialize(letter,direction, length,x,y, escape=false)
-
     @x = x
     @y = y
-    @type = direction
+    @direction = direction
     @length = length
     @escape =escape
     @letter = letter
@@ -28,6 +28,8 @@ class Field
     @x=x
     @y=y
   end
+
+
 
 
 

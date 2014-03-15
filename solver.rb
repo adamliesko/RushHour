@@ -1,14 +1,16 @@
 require "./grid.rb"
 require "set"
 
-def showSolution(grid)
-  history = []
+def printGridEscape(grid)
+  states = Array.new
   while grid
-    history.unshift(grid)
+    states.unshift(grid)
     grid = grid.parent
   end
-  history.each do |b|
-    b.print
+  states[0].printGrid
+  states.each do |grid|
+    grid.action.print if grid.action
+    grid.printGrid
   end
 end
 
@@ -20,16 +22,20 @@ def solveBFS(grid)
   while !queue.empty?
     g = queue.shift
     if g.isFinish?
+      puts 'Solution found'
       backup=g
       while g.parent
         g=g.parent
         moves+=1
       end
-      showSolution(backup)
+      printGridEscape(backup)
       puts ("Solved in  #{moves} moves")
       exit
     end
-    next if explored.include?(g)
+    if explored.include?(g)
+      puts 'was here'
+      next
+    end
     explored.add(g)
     grids = g.generateAllGrids
     grids.each do |child|
@@ -37,6 +43,7 @@ def solveBFS(grid)
     end
   end
   puts "No solution found"
+  exit
 end
 
 def solveDFS(grid)
@@ -68,63 +75,40 @@ def solveDFS(grid)
     end
   end
   if (min_grid)
-    #showSolution(min_grid)
+    #printGridEscape(min_grid)
     puts ("Solved in  #{min_moves} moves")
     exit
   end
   puts "No solution found"
 end
-=begin
+
 def loadGrid(filename)
   grid = Grid.new(6,6)
+  cars =[]
 
   f = File.open(filename, "r")
   f.each_line do |line|
-    size = line[3].to_i
-    x = line[5].to_i-1
-    y = line[7].to_i-1
-    letter =line[0..1]
-    special=false
-    special = true if letter == '!'
-    (/line/ =~ 'HORIZONTAL') ?
-        grid.add(Field.new(letter, HORIZONTAL, size, x, y, special)) :
-        grid.add(Field.new(letter, VERTICAL, size, x, y, special))
-
+    orientation = line[-2]
+    size = line[2].to_i
+    x = line[4].to_i-1
+    y = line[6].to_i-1
+    letter =line[0]
+    escape_vehicle =  letter == '!'
+    if orientation == 'h'
+      cars.push(Field.new(letter, HORIZONTAL, size, x, y, escape_vehicle))
+    else
+      cars.push(Field.new(letter, VERTICAL, size, x, y, escape_vehicle))
+    end
   end
   f.close
+  cars.each do |car|
+    grid.add(car)
+  end
   grid
 end
-=end
 
-#grid = loadGrid('board1.txt')
-#
-#add veritcal
-grid = Grid.new(6,6)
+grid = loadGrid('board1.txt')
 
-grid.add(Field.new('aa',VERTICAL, 3, 0,0))
-grid.add(Field.new('bb',VERTICAL, 2, 3,0))
-grid.add(Field.new('cc',VERTICAL, 2, 5,0))
-grid.add(Field.new('dd',VERTICAL, 3, 4,2))
-grid.add(Field.new('ee',VERTICAL, 2, 5,3))
-grid.add(Field.new('ff',VERTICAL, 2, 2,4))
-
-#add horizontal
-grid.add(Field.new('gg',HORIZONTAL, 2, 1,1))
-grid.add(Field.new('hh',HORIZONTAL, 3, 0,3))
-grid.add(Field.new('ii',HORIZONTAL, 2, 0,5))
-grid.add(Field.new('jj',HORIZONTAL, 2, 3,5))
-
-grid.add(Field.new('!!',HORIZONTAL, 2, 2,2, true))
-
-
-=begin
-grid.add(Field.new(VERTICAL, 4, 0,1))
-grid.add(Field.new(VERTICAL, 3, 3,2))
-grid.add(Field.new(VERTICAL, 2, 4,0))
-grid.add(Field.new(HORIZONTAL, 2, 1,2, true))
-grid.add(Field.new(HORIZONTAL, 2, 2,5))
-=end
-
-grid.print
+grid.printGrid
 solveBFS(grid)
 #solveDFS(grid)

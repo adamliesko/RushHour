@@ -1,15 +1,16 @@
 require "./field.rb"
+require "./action.rb"
+
 
 class Grid
-  attr_accessor :grid, :fields, :lettersToUse, :width, :height, :parent, :escape_vehicle
+  attr_accessor :grid, :fields,  :width, :height, :parent, :escape_vehicle, :action
 
   def initialize(width, height)
     @fields = []
     @width = width
     @height = height
-    @grid = Array.new(width) { Array.new(height, "  ") }
-
-    @lettersToUse = ('a'..'z').to_a
+    @grid = Array.new(width) { Array.new(height, ".") }
+    @action = nil
   end
 
   def eql?(other)
@@ -19,161 +20,233 @@ class Grid
     true
   end
 
-  def hash
-    hash = 0
-    @grid.each_with_index { |row, i| hash += row.hash*(10*(i+1)) }
-    hash
-  end
-
   # funkcia na vygenerovanie vsetkych moznych stavov po pohyboch , ako mnozina novych krizovatiek
   def generateAllGrids
     grids = []
-    @fields.each do |field|
-      x, y = field.x, field.y
-      case field.type
-        when VERTICAL
-          if self.canMove?(field, UP)
-            up = self.dup
-            up.move(x, y, UP)
-            up.parent = self
-            grids << up
-          end
-          if self.canMove?(field, DOWN)
-            down = self.dup
-            down.move(x, y, DOWN)
-            down.parent = self
-            grids << down
-          end
-        when HORIZONTAL
-          if self.canMove?(field, LEFT)
-            left = self.dup
-            left.move(x, y, LEFT)
-            left.parent = self
-            grids << left
-          end
-          if self.canMove?(field, RIGHT)
-            right = self.dup
-            right.move(x, y, RIGHT)
-            right.parent = self
-            grids << right
-          end
+    puts 'GENERATING'
+    self.fields.each do |field|
+      (1..5).each do |distance|
+        x, y = field.x, field.y
+        case field.direction
+          when VERTICAL
+            if self.canMove?(field, UP,distance)
+              u = duplicateGrid(self)
+              #puts 'up'
+              #self.print
+              u.move(field,UP,distance)
+              u.parent = self
+              u.action.print
+              #u.print
+              grids.push(u)
+            end
+            if self.canMove?(field, DOWN,distance)
+              #puts 'down'
+              #self.print
+              d = duplicateGrid(self)
+              d.move(field, DOWN,distance)
+              d.parent = self
+              d.action.print
+              #d.print
+              grids.push(d)
+            end
+          when HORIZONTAL
+            if self.canMove?(field, LEFT,distance)
+             # puts 'left'
+              #self.print
+              l = duplicateGrid(self)
+              l.move(field, LEFT,distance)
+              l.action.print
+              #l.print
+              l.parent = self
+              grids.push(l)
+            end
+            if self.canMove?(field, RIGHT,distance)
+              #puts 'right'
+              #self.print
+              r = duplicateGrid(self)
+              r.move(field, RIGHT,distance)
+              r.parent = self
+              r.action.print
+              #r.print
+              grids.push(r)
+            end
+        end
       end
     end
+    #puts 'GENERATING ENDS'
     grids
   end
 
   # zistujeme, ci uz sme solvli hlavolam, tj ci moze escape vehicle ujst
   def isFinish?
     x,y = @escape_vehicle.position
-
     return true if x+@escape_vehicle.length == @width
     (x+@escape_vehicle.length).upto(@width-1) do |z|
-      return false if !@grid[z][y].eql?("  ")
+      return false if not @grid[z][y].eql?(".")
     end
     true
   end
 
   #posun fieldu na x,y o jednu poziciu danym smerom
-  def move(x,y, direction)
-    # initialize field to something
-    field = self.fields[0]
-    self.fields.each do |b|
-      field = b if b.x == x && b.y == y
+  def move(orig_field ,direction,distance)
+    field = Field.new(1,2,3,4,5)
+    @fields.each do |f|
+      if f.x == orig_field.x && orig_field.y == orig_field.y
+        field = f
+      end
     end
+
+    x=field.x
+    y=field.y
     letter = field.letter
     len    = field.length
     case direction
       when UP
-        @grid[x][y-1] = "#{letter}#{letter}"
-        @grid[x][y+len-1] = "  "
-        field.y -= 1
+
+        direction='up'
+        (0..len-1).each do |i|
+          @grid[x][y+i] = "."
+        end
+        (0..len-1).each do |i|
+          @grid[x][y+i-distance] = "#{letter}"
+        end
+        field.y -= distance
       when DOWN
-        @grid[x][y+len] = "#{letter}#{letter}"
-        @grid[x][y] = "  "
-        field.y += 1
+        direction='down'
+        (0..len-1).each do |i|
+          @grid[x][y+i] = "."
+        end
+        (0..len-1).each do |i|
+          @grid[x][y+i+distance] = "#{letter}"
+        end
+        field.y += distance
       when LEFT
-        @grid[x-1][y] = "#{letter}#{letter}"
-        @grid[x+len-1][y] = "  "
-        field.x -= 1
+        direction='left'
+        (0..len-1).each do |i|
+          @grid[x+i][y] = "."
+        end
+        (0..len-1).each do |i|
+          @grid[x+i-distance][y] = "#{letter}"
+        end
+        field.x -= distance
       when RIGHT
-        @grid[x+len][y] = "#{letter}#{letter}"
-        @grid[x][y] = "  "
-        field.x += 1
+        direction='right'
+        (0..len-1).each do |i|
+          @grid[x+i][y] = "."
+        end
+        (0..len-1).each do |i|
+          @grid[x+i+distance][y] = "#{letter}"
+        end
+        field.x += distance
     end
+    @action=Action.new(field,direction,distance)
   end
-  #pridanie auta na field
+
+  #pridanie auta na field pri loadingu mapy
   def add(field)
-    @fields << field
-    letter = @lettersToUse.shift if !field.escape
+    @fields.push(field)
     if field.escape
-      letter = "!"
       @escape_vehicle = field
     end
     field.grid = self
-    field.letter = letter
 
+    letter =field.letter
     x,y = field.position
     length = field.length
 
-    case field.type
+    case field.direction
       when HORIZONTAL
         x.upto(x+length-1) do |w|
-          @grid[w][y] = "#{letter}#{letter}"
+          @grid[w][y] = "#{letter}"
         end
       when VERTICAL
         y.upto(y+length-1) do |z|
-          @grid[x][z] = "#{letter}#{letter}"
+          @grid[x][z] = "#{letter}"
         end
     end
   end
 
-  #kontrola ci sa auto na x,y moze pohnut dany smerom
-  def canMove?(field, direction)
+  # kontrola ci sa auto na x,y moze pohnut dany smerom
+  # kontrolu spravit na celej drahe, nie len vysledne fieldy
+  # spravit evidenciu moves
+  # nie len grids, pretoze to je podstatny vystup tohto tupeho vyjebaneho programu
+  def canMove?(field,direction,distance)
+    x =field.x
+    length = field.length
+    y =field.y
+    letter=field.letter
 
-    x=field.x
-    y=field.y
-    length=field.length
 
-    case direction
+      case direction
+        when UP
+          if field.direction == HORIZONTAL || y-distance < 0
+            return false
+          end
+          (y-distance..y-1).each do |i|
+            unless @grid[x][i].eql?(".")
+              return false
+            end
+          end
 
-      when UP
-        return false if field.type == HORIZONTAL || y == 0
-        return @grid[x][y-1].eql?("  ")
-      when DOWN
-        return false if field.type == HORIZONTAL || y+length == @height
-        return @grid[x][y+length].eql?("  ")
-      when LEFT
-        return false if field.type == VERTICAL || x == 0
-        return @grid[x-1][y].eql?("  ")
-      when RIGHT
-        return false if field.type == VERTICAL || x+length == @width
-        return @grid[x+length][y].eql?("  ")
-    end
+          return true
+        when DOWN
+          if field.direction == HORIZONTAL || y+length-1+distance >= @height
+            return false
+          end
+          (y+length..y+length+distance-1).each do |i|
+
+            unless @grid[x][i].eql?(".")
+              return false
+            end
+          end
+          return true
+        when LEFT
+          if field.direction == VERTICAL ||  x-distance < 0
+            return false
+          end
+          (x-distance..x-1).each do |i|
+
+            unless @grid[i][y].eql?(".")
+              return false
+            end
+          end
+          true
+        when RIGHT
+          if field.direction == VERTICAL || x+length-1+distance >= @width
+            return false
+          end
+          (x+length..x+distance+length-1).each do |i|
+            unless  @grid[i][y].eql?(".")
+              return false
+            end
+          end
+          return true
+      end
   end
 
   # vypis krizovatky na plochu
-  def print
-    puts "X"+( ["XXX"]*width).join()+"X"
+  public
+  def printGrid
+    puts "\nCURRENT STATE \n"
+    puts "+"+(["+"]*width).join()+"+"
     @grid.each_with_index do |row, x|
-      #puts "|"+row.join(" ")+" X"
-      s = "X"
+      s = "+"
       row.each_with_index do |el, y|
-        s+= @grid[y][x]+" "
+        s+= @grid[y][x]+''
       end
-      s+="X" if x != self.escape_vehicle.y
+      s+="+" if x != self.escape_vehicle.y
       puts s
     end
-    puts "X"+( ["XXX"]*width).join()+"X"
+    puts "+"+(["+"]*width).join()+"+"
   end
 
   # funkcia na zkopcenie gridu
-  def dup
+  def duplicateGrid(grid)
     newgrid = Grid.new(self.width, self.height)
-    @fields.each do |b|
-      newgrid.add(Field.new(b.letter,b.type, b.length, b.x,b.y,b.escape))
+    grid.fields.each do |b|
+      newgrid.add(Field.new(b.letter,b.direction, b.length, b.x,b.y,b.escape))
     end
-    newgrid.lettersToUse = self.lettersToUse
-    newgrid.parent = self.parent
+    newgrid.parent = grid.parent
     newgrid
   end
 
