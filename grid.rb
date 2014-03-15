@@ -23,57 +23,40 @@ class Grid
   # funkcia na vygenerovanie vsetkych moznych stavov po pohyboch , ako mnozina novych krizovatiek
   def generateAllGrids
     grids = []
-    puts 'GENERATING'
+
     self.fields.each do |field|
       (1..5).each do |distance|
         x, y = field.x, field.y
         case field.direction
           when VERTICAL
             if self.canMove?(field, UP,distance)
-              u = duplicateGrid(self)
-              #puts 'up'
-              #self.print
+              u = self.duplicateGrid
               u.move(field,UP,distance)
               u.parent = self
-              u.action.print
-              #u.print
               grids.push(u)
             end
             if self.canMove?(field, DOWN,distance)
-              #puts 'down'
-              #self.print
-              d = duplicateGrid(self)
+              d = self.duplicateGrid
               d.move(field, DOWN,distance)
               d.parent = self
-              d.action.print
-              #d.print
               grids.push(d)
             end
           when HORIZONTAL
             if self.canMove?(field, LEFT,distance)
-             # puts 'left'
-              #self.print
-              l = duplicateGrid(self)
+              l = self.duplicateGrid
               l.move(field, LEFT,distance)
-              l.action.print
-              #l.print
               l.parent = self
               grids.push(l)
             end
             if self.canMove?(field, RIGHT,distance)
-              #puts 'right'
-              #self.print
-              r = duplicateGrid(self)
+              r = self.duplicateGrid
               r.move(field, RIGHT,distance)
               r.parent = self
-              r.action.print
-              #r.print
               grids.push(r)
             end
         end
       end
     end
-    #puts 'GENERATING ENDS'
     grids
   end
 
@@ -91,7 +74,7 @@ class Grid
   def move(orig_field ,direction,distance)
     field = Field.new(1,2,3,4,5)
     @fields.each do |f|
-      if f.x == orig_field.x && orig_field.y == orig_field.y
+      if f.x == orig_field.x and orig_field.y == f.y
         field = f
       end
     end
@@ -100,9 +83,9 @@ class Grid
     y=field.y
     letter = field.letter
     len    = field.length
+
     case direction
       when UP
-
         direction='up'
         (0..len-1).each do |i|
           @grid[x][y+i] = "."
@@ -205,7 +188,6 @@ class Grid
             return false
           end
           (x-distance..x-1).each do |i|
-
             unless @grid[i][y].eql?(".")
               return false
             end
@@ -227,7 +209,7 @@ class Grid
   # vypis krizovatky na plochu
   public
   def printGrid
-    puts "\nCURRENT STATE \n"
+    puts "\nGRID"
     puts "+"+(["+"]*width).join()+"+"
     @grid.each_with_index do |row, x|
       s = "+"
@@ -241,12 +223,12 @@ class Grid
   end
 
   # funkcia na zkopcenie gridu
-  def duplicateGrid(grid)
+  def duplicateGrid
     newgrid = Grid.new(self.width, self.height)
-    grid.fields.each do |b|
+    @fields.each do |b|
       newgrid.add(Field.new(b.letter,b.direction, b.length, b.x,b.y,b.escape))
     end
-    newgrid.parent = grid.parent
+    newgrid.parent = self.parent
     newgrid
   end
 

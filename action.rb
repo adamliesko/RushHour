@@ -11,6 +11,6 @@ class Action
   end
 
   def print
-    puts "Car #{letter} moving #{direction} #{distance} field/s onto #{tx}, #{ty}"
+    puts "ACTION: Car #{letter} moving #{direction} #{distance} field/s onto #{tx}, #{ty}"
   end
 end

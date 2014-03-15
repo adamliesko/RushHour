@@ -7,10 +7,10 @@ def printGridEscape(grid)
     states.unshift(grid)
     grid = grid.parent
   end
-  states[0].printGrid
+  puts "Initial state:"
   states.each do |grid|
-    grid.action.print if grid.action
     grid.printGrid
+    grid.action.print if grid.action
   end
 end
 
@@ -29,7 +29,7 @@ def solveBFS(grid)
         moves+=1
       end
       printGridEscape(backup)
-      puts ("Solved in  #{moves} moves")
+      puts ("\nSolved in  #{moves} moves, explored #{explored.length} states\n")
       exit
     end
     if explored.include?(g)
@@ -48,38 +48,34 @@ end
 
 def solveDFS(grid)
   moves=0
-  min_moves=99999
   explored = Set.new()
-  stack = []
-  stack.push(grid)
-
-  while !stack.empty?
-    g = stack.pop
+  queue = []
+  queue << grid
+  while !queue.empty?
+    g = queue.shift
     if g.isFinish?
-      moves=0
+      puts 'Solution found'
       backup=g
       while g.parent
         g=g.parent
         moves+=1
       end
-      if moves < min_moves
-        min_moves =moves
-        min_grid=backup
-      end
+      printGridEscape(backup)
+      puts ("\nSolved in  #{moves} moves, explored #{explored.length} states\n")
+      exit
     end
-    next if explored.include?(g)
+    if explored.include?(g)
+      puts 'was here'
+      next
+    end
     explored.add(g)
     grids = g.generateAllGrids
     grids.each do |child|
-      stack.push(child)
+      queue <<  child
     end
   end
-  if (min_grid)
-    #printGridEscape(min_grid)
-    puts ("Solved in  #{min_moves} moves")
-    exit
-  end
   puts "No solution found"
+  exit
 end
 
 def loadGrid(filename)
@@ -107,8 +103,8 @@ def loadGrid(filename)
   grid
 end
 
-grid = loadGrid('board1.txt')
+grid = loadGrid('board2.txt')
 
-grid.printGrid
+#grid.printGrid
 solveBFS(grid)
 #solveDFS(grid)
