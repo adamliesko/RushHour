@@ -30,8 +30,40 @@ Vstupný stav:
 
 ((cervene 2 3 2 h)(oranzove 2 1 1 h)(zlte 3 2 1 v)(fialove 2 5 1 v)
 (zelene 3 2 4 v)(svetlomodre 3 6 3 h)(sive 2 5 5 h)(tmavomodre 3 1 6 v))
+
 Výstupný stav:
 ((cervene 2 3 2 h)(oranzove 2 1 2 h)(zlte 3 2 1 v)(fialove 2 5 1 v)
 (zelene 3 2 4 v)(svetlomodre 3 6 3 h)(sive 2 5 5 h)(tmavomodre 3 1 6 v))
 
+UZOL
+
+Stav predstavuje nejaký bod v stavovom priestore. My však od algoritmov požadujeme, aby nám ukázali cestu. Preto musíme zo stavového priestoru vytvoriť graf. Našťastie to nie je zložitá úloha. Stavy jednoducho nahradíme uzlami.
+Čo obsahuje typický uzol?
+Musí minimálne obsahovať
+
+STAV (to, čo uzol reprezentuje) a
+ODKAZ NA PREDCHODCU (pre nás zaujímavá hrana grafu, reprezentovaná čo najefektívnejšie).
+Okrem toho môže obsahovať ďalšie informácie, ako
+
+POSLEDNE POUŽITÝ OPERÁTOR
+PREDCHÁDZAJÚCE OPERÁTORY
+HĹBKA UZLA
+CENA PREJDENEJ CESTY
+ODHAD CENY CESTY DO CIEĽA
+Iné vhodné informácie o uzle
+Uzol by však nemal obsahovať údaje, ktoré sú nadbytočné a príslušný algoritmus ich nepotrebuje. Pri zložitých úlohách sa generuje veľké množstvo uzlov a každý zbytočný bajt v uzle dokáže spotrebovať množstvo pamäti a znížiť rozsah prehľadávania algoritmu. Nedostatok informácií môže zase extrémne zvýšiť časové nároky algoritmu. Použité údaje zdôvodnite.
+
+ALGORITMUS
+
+Každé zadanie používa svoj algoritmus, ale algoritmy majú mnohé spoločné črty. Každý z nich potrebuje udržiavať informácie o uzloch, ktoré už kompletne spracoval a o uzloch, ktoré už vygeneroval, ale zatiaľ sa nedostali na spracovanie. Algoritmy majú tendenciu generovať množstvo stavov, ktoré už boli raz vygenerované. S týmto problémom je tiež potrebné sa vhodne vysporiadať, zvlášť u algoritmov, kde rovnaký stav neznamená rovnako dobrý uzol.
+Činnosť nasledujúcich algoritmov sa dá z implementačného hľadiska opísať nasledujúcimi všeobecnými krokmi:
+
+Vytvor počiatočný uzol a umiestni medzi vytvorené a zatiaľ nespracované uzly
+Ak neexistuje žiadny vytvorený a zatiaľ nespracovaný uzol, skonči s neúspechom - riešenie neexistuje
+Vyber najvhodnejší uzol z vytvorených a zatiaľ nespracovaných, označ ho aktuálny
+Ak tento uzol predstavuje cieľový stav, skonči s úspechom - vypíš riešenie
+Vytvor nasledovníkov aktuálneho uzla a zaraď ho medzi spracované uzly
+Vytrieď nasledovníkov a ulož ich medzi vytvorené a zatiaľ nespracované
+Choď na krok 2.
+Uvedené kroky sú len všeobecné a pre jednotlivé algoritmy ich treba ešte vždy rôzne upravovať a optimalizovať.
 
