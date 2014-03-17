@@ -3,7 +3,7 @@ require "./action.rb"
 
 
 class Grid
-  attr_accessor :grid, :fields,  :width, :height, :parent, :escape_vehicle, :action
+  attr_accessor :grid, :fields, :width, :height, :parent, :escape_vehicle, :action
 
   def initialize(width, height)
     @fields = [] #pole automobilov
@@ -11,7 +11,6 @@ class Grid
     @action = nil #akcia zatial nulova
     @height = height
     @grid = Array.new(@width) { Array.new(@height, ".") } #krizovatka pre automobily
-
   end
 
   # funkcia na zistienia , ci su 2 krizovatky rovnake
@@ -32,33 +31,32 @@ class Grid
     #pre kazde autor z krizovatky
     self.fields.each do |field|
       #pre jednotlive vzdialenosti
-      (1..width-1).each do |distance|
-        x, y = field.x, field.y
+      (1..@width-1).each do |distance|
         #zistujem ktorym smerom sa mozem vydat
         case field.direction
           when VERTICAL
             if self.can_move?(field, UP, distance)
               u = self.duplicate_grid
-              u.move(field,UP,distance)
+              u.move(field, UP, distance)
               u.parent = self
               grids.push(u)
             end
             if self.can_move?(field, DOWN, distance)
               d = self.duplicate_grid
-              d.move(field, DOWN,distance)
+              d.move(field, DOWN, distance)
               d.parent = self
               grids.push(d)
             end
           when HORIZONTAL
             if self.can_move?(field, LEFT, distance)
               l = self.duplicate_grid
-              l.move(field, LEFT,distance)
+              l.move(field, LEFT, distance)
               l.parent = self
               grids.push(l)
             end
             if self.can_move?(field, RIGHT, distance)
               r = self.duplicate_grid
-              r.move(field, RIGHT,distance)
+              r.move(field, RIGHT, distance)
               r.parent = self
               grids.push(r)
             end
@@ -83,8 +81,8 @@ class Grid
   end
 
   #posun fieldu na x,y o jednu poziciu danym smerom
-  def move(orig_field ,direction,distance)
-    field = Field.new(1,2,3,4,5)
+  def move(orig_field, direction, distance)
+    field = Field.new(1, 2, 3, 4, 5)
     # najdeme si ktory field ideme posuvat
     @fields.each do |f|
       if f.x == orig_field.x and orig_field.y == f.y
@@ -95,7 +93,7 @@ class Grid
     x=field.x
     y=field.y
     letter = field.letter
-    len    = field.length
+    len = field.length
 
     #vzdy zmazem povodne pozicie a vytvorime nove
 
@@ -138,7 +136,7 @@ class Grid
         field.x += distance
     end
     #vytvorime akciu pohybu
-    @action=Action.new(field,direction,distance)
+    @action=Action.new(field, direction, distance)
   end
 
   #pridanie auta na field pri loadingu mapy
@@ -168,54 +166,53 @@ class Grid
   # kontrolu treba spravit na celej drahe, nie len vysledne fieldy
 
   def can_move?(field, direction, distance)
-  x =field.x
+    x =field.x
     length = field.length
     y =field.y
-    letter=field.letter
-      case direction
-        when UP
-          if field.direction == HORIZONTAL || y-distance < 0
+    case direction
+      when UP
+        if field.direction == HORIZONTAL || y-distance < 0
+          return false
+        end
+        (y-distance..y-1).each do |i|
+          unless @grid[x][i].eql?(".")
             return false
           end
-          (y-distance..y-1).each do |i|
-            unless @grid[x][i].eql?(".")
-              return false
-            end
-          end
+        end
 
-          return true
-        when DOWN
-          if field.direction == HORIZONTAL || y+length-1+distance >= @height
-            return false
-          end
-          (y+length..y+length+distance-1).each do |i|
+        return true
+      when DOWN
+        if field.direction == HORIZONTAL || y+length-1+distance >= @height
+          return false
+        end
+        (y+length..y+length+distance-1).each do |i|
 
-            unless @grid[x][i].eql?(".")
-              return false
-            end
-          end
-          return true
-        when LEFT
-          if field.direction == VERTICAL ||  x-distance < 0
+          unless @grid[x][i].eql?(".")
             return false
           end
-          (x-distance..x-1).each do |i|
-            unless @grid[i][y].eql?(".")
-              return false
-            end
-          end
-          true
-        when RIGHT
-          if field.direction == VERTICAL || x+length-1+distance >= @width
+        end
+        return true
+      when LEFT
+        if field.direction == VERTICAL || x-distance < 0
+          return false
+        end
+        (x-distance..x-1).each do |i|
+          unless @grid[i][y].eql?(".")
             return false
           end
-          (x+length..x+distance+length-1).each do |i|
-            unless  @grid[i][y].eql?(".")
-              return false
-            end
+        end
+        true
+      when RIGHT
+        if field.direction == VERTICAL || x+length-1+distance >= @width
+          return false
+        end
+        (x+length..x+distance+length-1).each do |i|
+          unless  @grid[i][y].eql?(".")
+            return false
           end
-          return true
-      end
+        end
+        return true
+    end
   end
 
   # vypis krizovatky na plochu
@@ -223,7 +220,7 @@ class Grid
   public
   def print_grid
     puts "\nGRID"
-    puts "+"+(["+"]*@width).join()+"+"
+    puts "+"+(["+"]*@width).join+"+"
     @grid.each_with_index do |row, x|
       s = "+"
       row.each_with_index do |el, y|
@@ -232,14 +229,14 @@ class Grid
       s+="+" if x != self.escape_vehicle.y
       puts s
     end
-    puts "+"+(["+"]*@width).join()+"+"
+    puts "+"+(["+"]*@width).join+"+"
   end
 
   # funkcia na zkopcenie gridu, pricom kopirujem aj jednotlive vozidla na mape, rodica
   def duplicate_grid
-  newgrid = Grid.new(self.width, self.height)
+    newgrid = Grid.new(self.width, self.height)
     @fields.each do |b|
-      newgrid.add(Field.new(b.letter,b.direction, b.length, b.x,b.y,b.escape))
+      newgrid.add(Field.new(b.letter, b.direction, b.length, b.x, b.y, b.escape))
     end
     newgrid.parent = self.parent
     newgrid

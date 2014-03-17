@@ -1,8 +1,8 @@
 require "./field.rb"
 class Action
-  attr_accessor :letter,:direction, :distance, :tx, :ty
+  attr_accessor :letter, :direction, :distance, :tx, :ty
 
-  def initialize(field,direction,distance)
+  def initialize(field, direction, distance)
     @direction = direction
     @distance=distance
     @letter = field.letter
