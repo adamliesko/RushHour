@@ -109,8 +109,8 @@ def load_grid(filename)
   grid
 end
 
-grid = load_grid('grids/grid4')
+grid = load_grid('grids/grid5')
 
-grid.print_grid
-solve_bfs(grid)
+#grid.print_grid
+#solve_bfs(grid)
 solve_dfs(grid)
