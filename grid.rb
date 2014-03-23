@@ -31,7 +31,7 @@ class Grid
     #pre kazde autor z krizovatky
     self.fields.each do |field|
       #pre jednotlive vzdialenosti
-      (1..@width-1).each do |distance|
+      (1..5).each do |distance|
         #zistujem ktorym smerom sa mozem vydat
         case field.direction
           when VERTICAL
@@ -242,11 +242,12 @@ class Grid
     newgrid
   end
 
+
   #interna funkcia aby ju mohol set vyuzivat pri zistovani ci uz niekedy v takom stave bol
   def hash
     result = 0
-    @grid.each_with_index do |row, i|
-      result += row.hash*((i+1))
+    @grid.each_with_index do |row, index|
+      result += row.hash*((index+1))
     end
     result
   end

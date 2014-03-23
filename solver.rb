@@ -110,12 +110,12 @@ def load_grid(filename)
   grid
 end
 
-grid = load_grid('grids/grid5')
+grid = load_grid('grids/grid4')
 
 #grid1.print_grid
 
 start = Time.now
-#solve_bfs(grid)
-solve_dfs(grid)
+solve_bfs(grid)
+#solve_dfs(grid)
 finish = Time.now
 puts(finish - start)
