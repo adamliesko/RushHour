@@ -5,11 +5,11 @@ require "./action.rb"
 class Grid
   attr_accessor :grid, :fields, :width, :height, :parent, :escape_vehicle, :action
 
-  def initialize(width, height)
+  def initialize(size)
     @fields = [] #pole automobilov
-    @width = width
+    @width = size
     @action = nil #akcia zatial nulova
-    @height = height
+    @height = size
     @grid = Array.new(@width) { Array.new(@height, ".") } #krizovatka pre automobily
   end
 
@@ -234,7 +234,7 @@ class Grid
 
   # funkcia na zkopcenie gridu, pricom kopirujem aj jednotlive vozidla na mape, rodica
   def duplicate_grid
-    newgrid = Grid.new(self.width, self.height)
+    newgrid = Grid.new(self.width)
     @fields.each do |b|
       newgrid.add(Field.new(b.letter, b.direction, b.length, b.x, b.y, b.escape))
     end

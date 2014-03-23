@@ -34,7 +34,7 @@ def solve_bfs(grid)
       end
       printGridEscape(backup)
       puts ("\nSolved with BFS in  #{moves} moves, explored #{explored.length} states\n")
-      exit
+      return
     end
     if explored.include?(g)
       next
@@ -67,7 +67,7 @@ def solve_dfs(grid)
       end
       printGridEscape(backup)
       puts ("\nSolved with DFS in  #{moves} moves, explored #{explored.length} states\n")
-      exit
+      return
       #ak som nasiel ciel s mensim poctom pohybov prepisem
     end
     if explored.include?(g)
@@ -84,9 +84,10 @@ def solve_dfs(grid)
   exit
 end
 
+
 #nacitanie krizovatky zo suboru
 def load_grid(filename)
-  grid = Grid.new(6, 6)
+  grid = Grid.new(6)
   cars =[]
   f = File.open(filename, "r")
   f.each_line do |line|
@@ -111,6 +112,10 @@ end
 
 grid = load_grid('grids/grid5')
 
-#grid.print_grid
+#grid1.print_grid
+
+start = Time.now
 #solve_bfs(grid)
 solve_dfs(grid)
+finish = Time.now
+puts(finish - start)
